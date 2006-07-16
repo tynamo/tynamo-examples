@@ -7,7 +7,11 @@
 	<bean id="trailsInterceptor" class="org.trails.hibernate.TrailsInterceptor" />
 
 	<bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="location"><value>/WEB-INF/hibernate.properties</value></property>
+		<property name="location"><value>classpath:hibernate.properties</value></property>
+	</bean>
+	
+	<bean id="hibernate" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties"><ref local="hibernateProperties"/></property>
 	</bean>
 	
 	<!-- <bean id="productService" class="org.blah.service.ProductService" /> -->
@@ -22,33 +26,32 @@
 
 
 	<!-- ========================= RESOURCE DEFINITIONS ========================= -->
-
+	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-        <property name="url" value="jdbc:hsqldb:mem:recipe"/>
-        <property name="username" value="sa"/>
-        <property name="password" value=""/>
+        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+        <property name="url" value="${hibernate.connection.url}"/>
+        <property name="username" value="${hibernate.connection.username}"/>
+        <property name="password" value="${hibernate.connection.password}"/>
     </bean>
-
 <bean id="sessionFactory"
        class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" autowire="byName">
-<!--
+<!--  
   <property name="mappingDirectoryLocations">
     <list>
       <value>classpath:</value>
     </list>
   </property>-->
 
-  <property name="configLocation"><value>/WEB-INF/hibernate.cfg.xml</value></property>
+  <property name="configLocation"><value>classpath:hibernate.cfg.xml</value></property> 
   	<property name="configurationClass">
    		<value>org.hibernate.cfg.AnnotationConfiguration</value>
-	</property>
+	</property> 
     <property name="entityInterceptor">
   		<ref local="trailsInterceptor" />
     </property>
     <property name="hibernateProperties">
   	  <ref local="hibernateProperties"/>
-  <!--
+  <!-- 
     <props>
       <prop key="hibernate.dialect">
         ${hibernate.dialect}
@@ -61,11 +64,11 @@
       <prop key="hibernate.connection.url">${jdbc.url}</prop>
       <prop key="hibernate.connection.username">${jdbc.userid}</prop>
       <prop key="hibernate.connection.password">${jdbc.password}</prop>
-
+      
     </props>
     -->
   </property>
-</bean>
+</bean>  
 
 	<bean id="autoproxy" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
           autowire="autodetect"/>
@@ -77,14 +80,15 @@
           autowire="autodetect"/>
     <bean id="transactionAttributeSource"
           class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
-
+	
 	<bean id="persistenceService" class="org.trails.hibernate.HibernatePersistenceService" autowire="autodetect"/>
-
+	
+	<!--  
 	<bean id="squeezableSqueezer" class="org.trails.io.SqueezableSqueezeAdaptor" >
 		<property name="descriptorService"><ref local="descriptorService" /></property>
 		<property name="persistenceService"><ref local="persistenceService" /></property>
-	</bean>
-
+	</bean>-->
+	
 	<bean id="descriptorService" class="org.trails.descriptor.TrailsDescriptorService" init-method="init">
 		<property name="types">
 			<bean id="persistenceService.allTypes" class="org.springframework.beans.factory.config.PropertyPathFactoryBean"/>
@@ -116,22 +120,22 @@
 			</list>
 		</property>
 	</bean>
-
+	
 	<bean id="hibernateDescriptorDecorator" class="org.trails.hibernate.HibernateDescriptorDecorator" singleton="true">
 		<property name="localSessionFactoryBean"> <ref bean="&amp;sessionFactory" /></property>
 		<property name="descriptorFactory"><ref local="descriptorFactory" /></property>
 	</bean>
-
-
+	
+	
 	<!-- security service bean -->
 	<bean id="securityService" class="org.trails.security.TrailsSecurityService"/>
-
+	
 		<!-- security startup beans. lazy-init is true since this is used rarely. -->
 	<bean id="roleUser" class="org.trails.security.domain.Role" lazy-init="true">
 		<property name="name"><value>ROLE_USER</value></property>
 		<property name="description"><value>User role</value></property>
 	</bean>
-
+	
 	<bean id="roleManager" class="org.trails.security.domain.Role" lazy-init="true">
 		<property name="name"><value>ROLE_MANAGER</value></property>
 		<property name="description"><value>Manager role</value></property>
@@ -163,9 +167,9 @@
 			</list>
 		</property>
 	</bean>
-
+	
 	<bean id="securityStartup" class="org.trails.security.SecurityStartup" lazy-init="true">
-		<property name="persistenceService"><ref local="persistenceService" /></property>
+		<property name="persistenceService"><ref local="persistenceService" /></property>		
 		<property name="defaultUsers">
 			<list>
 				<ref local="user"/>
@@ -181,31 +185,72 @@
 	</bean>
 
 	<!-- end of security startup beans -->
-
+	
 	<bean id="validateUniqueAspect" class="org.trails.validation.ValidateUniqueAspect" factory-method="aspectOf">
 		<property name="descriptorService"><ref local="descriptorService" /></property>
 		<property name="persistenceService"><ref local="persistenceService" /></property>
 	</bean>
-
+	
 	<bean id="descriptorInternationalizationAspect" class="org.trails.i18n.DescriptorInternationalization" factory-method="aspectOf">
 		<property name="resourceBundleMessageSource"><ref local="trailsMessageSource"/></property>
 	</bean>
-
+	
 	<bean id="descriptorSecurity" class="org.trails.security.DescriptorSecurity" factory-method="aspectOf">
 		<property name="securityService"><ref bean="securityService"/></property>
 	</bean>
-
+	
 	<bean id="pageResolver" class="org.trails.page.DefaultPageResolver" />
 
-	<bean id="editorService" class="org.trails.descriptor.TrailsBlockFinder">
+	<bean id="searchBlockFinder" class="org.trails.descriptor.BaseBlockFinder">
+		<property name="defaultBlockAddress">
+				<bean class="org.apache.tapestry.util.ComponentAddress">
+					<constructor-arg index="0"><value>trails:SearchBlocks</value></constructor-arg>
+					<constructor-arg index="1"><value>simpleSearch</value></constructor-arg>
+				</bean>
+		</property>			
+		<property name="editorMap">
+			<map>
+				<entry>
+				<key><value>string</value></key>
+				<bean class="org.apache.tapestry.util.ComponentAddress">
+					<constructor-arg index="0"><value>trails:SearchBlocks</value></constructor-arg>
+					<constructor-arg index="1"><value>stringSearch</value></constructor-arg>
+				</bean>
+				</entry>	
+				<entry>
+				<key><value>objectReference</value></key>
+				<bean class="org.apache.tapestry.util.ComponentAddress">
+					<constructor-arg index="0"><value>trails:SearchBlocks</value></constructor-arg>
+					<constructor-arg index="1"><value>associationSearch</value></constructor-arg>
+				</bean>
+				</entry>	
+				<entry>
+				<key><value>numeric</value></key>
+				<bean class="org.apache.tapestry.util.ComponentAddress">
+					<constructor-arg index="0"><value>trails:SearchBlocks</value></constructor-arg>
+					<constructor-arg index="1"><value>numberSearch</value></constructor-arg>
+				</bean>
+				</entry>	
+				<entry>
+				<key><value>date</value></key>
+				<bean class="org.apache.tapestry.util.ComponentAddress">
+					<constructor-arg index="0"><value>trails:SearchBlocks</value></constructor-arg>
+					<constructor-arg index="1"><value>dateSearch</value></constructor-arg>
+				</bean>
+				</entry>	
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="editorService" class="org.trails.descriptor.EditorBlockFinder">
 		<property name="defaultBlockAddress">
 				<bean class="org.apache.tapestry.util.ComponentAddress">
 					<constructor-arg index="0"><value>trails:Editors</value></constructor-arg>
 					<constructor-arg index="1"><value>stringEditor</value></constructor-arg>
 				</bean>
-		</property>
+		</property>			
 		<property name="editorMap">
-
+			
 			<map>
 				<entry>
 				<key><value>hidden</value></key>
@@ -226,6 +271,13 @@
 				<bean class="org.apache.tapestry.util.ComponentAddress">
 					<constructor-arg index="0"><value>trails:Editors</value></constructor-arg>
 					<constructor-arg index="1"><value>FCKEditor</value></constructor-arg>
+				</bean>
+				</entry>
+				<entry>
+				<key><value>name.toLowerCase().endsWith('password')</value></key>
+				<bean class="org.apache.tapestry.util.ComponentAddress">
+					<constructor-arg index="0"><value>trails:Editors</value></constructor-arg>
+					<constructor-arg index="1"><value>passwordEditor</value></constructor-arg>
 				</bean>
 				</entry>
 				<entry>
@@ -294,6 +346,6 @@
 			</map>
 		</property>
 	</bean>
-
+	
 	<bean id="validatorTranslatorService" class="org.trails.validation.ValidatorTranslatorService" />
 </beans>
