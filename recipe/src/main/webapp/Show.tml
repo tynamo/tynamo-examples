@@ -5,7 +5,10 @@
 		<ul>
 			<ul id="local">
 				<li>
-					<t:pagelink t:page="Edit" context="editPageContext">${message:org.trails.i18n.edit}</t:pagelink>
+					<t:pagelink class="editlink" t:page="Edit" context="editPageContext">${editlinkMessage}</t:pagelink>
+				</li>
+				<li>
+					
 				</li>
 				<li>
 					<t:actionlink class="deletelink" t:id="delete">${message:org.trails.i18n.remove}</t:actionlink>
@@ -22,6 +25,6 @@
 	<br/>
 
 
-	<t:beandisplay object="bean" model="beanModel"/>
+	<t:beandisplay object="bean" model="beanModel" lean="true"/>
 
 </t:layout>
