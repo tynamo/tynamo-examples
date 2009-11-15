@@ -112,4 +112,10 @@ public class AddC extends HibernateEditPage
 		return getPageRenderLinkSource().createPageRenderLinkWithContext(Edit.class, collectionDescriptor.getBeanType(), parentBean);
 	}
 
+	@Override
+	protected String getSuccessMessageKey()
+	{
+		return Utils.ADDED_MESSAGE;
+	}
+
 }
