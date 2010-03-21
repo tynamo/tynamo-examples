@@ -1,4 +1,4 @@
-package org.tynamo.test.functional;
+package org.tynamo.examples.simple.functional;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

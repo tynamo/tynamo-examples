@@ -1,5 +1,5 @@
 /*
- * Created on Dec 22, 2004
+ * Created on Dec 13, 2004
  *
  * Copyright 2004 Chris Nelson
  * 
@@ -11,22 +11,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package org.tynamo.test.functional;
+package org.tynamo.examples.simple.functional;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.tynamo.test.AbstractContainerTest;
 
+import static com.gargoylesoftware.htmlunit.WebAssert.*;
+
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-public class HiddenAndReadonlyTest extends AbstractContainerTest
+public class AssignedIdentifierTest extends AbstractContainerTest
 {
 	@Test
-	public void testThing2() throws Exception
+	public void assigningStringId() throws Exception
 	{
-		//assertNull("no hidden column", new HtmlUnitXPath("//td/a[contains(text(), 'Hidden')]").selectSingleNode(listThing2sPage));
 		HtmlPage newThing2Page = webClient.getPage(BASEURI + "add/thing2");
-		assertXPathPresent(newThing2Page, "//div[@class='t-beaneditor-row']//label[contains(text(), 'Read Only')]/following-sibling::p[contains(text(), 'foo')]");
-
+		HtmlForm newThing2Form = (HtmlForm) newThing2Page.getElementById("form");
+		newThing2Form.<HtmlInput>getInputByName("identifier").setValueAttribute("blah");
+		newThing2Page = clickButton(newThing2Page, "saveAndReturnButton");
+		assertErrorTextNotPresent(newThing2Page);
+		assertTextPresent(newThing2Page, "blah");
 	}
 }

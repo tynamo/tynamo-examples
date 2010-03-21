@@ -1,4 +1,4 @@
-package org.tynamo.test.functional;
+package org.tynamo.examples.simple.functional;
 
 import org.testng.annotations.Test;
 import org.tynamo.test.AbstractContainerTest;

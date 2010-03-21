@@ -1,4 +1,5 @@
-<t:layout title="literal:Tynamo!" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_0_0.xsd" xmlns:p="tapestry:parameter">
+<t:layout title="literal:Tynamo!" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_0_0.xsd"
+          xmlns:p="tapestry:parameter">
 	<p:subMenuBlock>
 		<ul>
 			<li>
@@ -11,7 +12,7 @@
 			</li>
 		</ul>
 	</p:navBlock>
-	
+
 	<h1>${message:org.tynamo.welcome}</h1>
 
 	<t:tynamo.ListPageLinkList/>

@@ -1,12 +1,9 @@
-package org.tynamo.test.functional;
+package org.tynamo.examples.simple.functional;
 
 import com.gargoylesoftware.htmlunit.html.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.tynamo.test.AbstractContainerTest;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
 
 public class CarTest extends AbstractContainerTest
 {
